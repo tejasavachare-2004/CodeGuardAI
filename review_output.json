@@ -1,0 +1,224 @@
+{
+  "repo_root": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI",
+  "file_path": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+  "filename": "agents/style_agent.py",
+  "code": "\nimport argparse\nimport json\nimport subprocess\nimport sys\nimport time\nfrom pathlib import Path\n\n\nclass StyleAgent:\n\n    def __init__(self):\n        self.name = \"Style & Code Quality Agent\"\n        self.duration_seconds = 0.0\n\n    def analyze(self, file_path):\n\n        start_time = time.perf_counter()\n\n        file_path = Path(file_path)\n\n        if not file_path.exists():\n            raise FileNotFoundError(f\"File not found: {file_path}\")\n\n        command = [\n            sys.executable,\n            \"-m\",\n            \"ruff\",\n            \"check\",\n            \"--output-format\",\n            \"json\",\n            \"--select\",\n            \"I,N,D,C90\",\n            str(file_path)\n        ]\n\n        result = subprocess.run(\n            command,\n            capture_output=True,\n            text=True\n        )\n\n        if result.returncode not in (0, 1):\n            raise RuntimeError(\n                f\"Ruff encountered an error:\\n{result.stderr}\"\n            )\n\n        raw_findings = json.loads(result.stdout or \"[]\")\n\n        findings = []\n\n        for finding in raw_findings:\n\n            location = finding.get(\"location\", {})\n\n            findings.append({\n                \"agent\": \"style\",\n                \"file\": str(file_path),\n                \"code\": finding.get(\"code\", \"UNKNOWN\"),\n                \"message\": finding.get(\"message\", \"No description\"),\n                \"line\": location.get(\"row\"),\n                \"column\": location.get(\"column\"),\n                \"severity\": \"MEDIUM\"\n            })\n\n        self.duration_seconds = round(\n            time.perf_counter() - start_time, 4\n        )\n\n        return findings\n\n\ndef main():\n\n    parser = argparse.ArgumentParser(\n        description=\"CodeGuard AI Style Agent\"\n    )\n\n    parser.add_argument(\n        \"path\",\n        help=\"Python file to analyze\"\n    )\n\n    args = parser.parse_args()\n\n    agent = StyleAgent()\n    findings = agent.analyze(args.path)\n\n    print(f\"\\nRunning {agent.name}...\")\n    print(f\"File: {args.path}\")\n    print(f\"Duration: {agent.duration_seconds:.4f}s\")\n\n    if not findings:\n        print(\"\\nNo style issues found!\")\n        return\n\n    print(f\"\\nFound {len(findings)} style issue(s):\\n\")\n\n    for index, finding in enumerate(findings, start=1):\n        print(f\"[{index}] {finding['code']}\")\n        print(f\"    Issue: {finding['message']}\")\n        print(\n            f\"    Location: Line {finding['line']}, \"\n            f\"Column {finding['column']}\"\n        )\n        print()\n\n\nif __name__ == \"__main__\":\n    main()\n",
+  "code_report": {
+    "agent": "bug_security",
+    "file": "agents/style_agent.py",
+    "model": "qwen2.5-coder:3b",
+    "syntax_valid": true,
+    "summary": "No bugs or security vulnerabilities were identified.",
+    "total_findings": 0,
+    "findings_by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "findings": [],
+    "discarded_findings": 0,
+    "duration_seconds": 7.31
+  },
+  "security_report": {
+    "agent": "security",
+    "file": "agents/style_agent.py",
+    "model": null,
+    "syntax_valid": true,
+    "summary": "No security vulnerabilities were identified.",
+    "risk_score": 0,
+    "risk_level": "NONE",
+    "total_findings": 0,
+    "findings_by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "findings": [],
+    "discarded_findings": 0,
+    "changed_lines_only": false,
+    "duration_seconds": 0.0
+  },
+  "style_findings": [
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D100",
+      "message": "Missing docstring in public module",
+      "line": 1,
+      "column": 1,
+      "severity": "MEDIUM"
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D101",
+      "message": "Missing docstring in public class",
+      "line": 10,
+      "column": 7,
+      "severity": "MEDIUM"
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D107",
+      "message": "Missing docstring in `__init__`",
+      "line": 12,
+      "column": 9,
+      "severity": "MEDIUM"
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D102",
+      "message": "Missing docstring in public method",
+      "line": 16,
+      "column": 9,
+      "severity": "MEDIUM"
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D103",
+      "message": "Missing docstring in public function",
+      "line": 73,
+      "column": 5,
+      "severity": "MEDIUM"
+    }
+  ],
+  "style_duration_seconds": 0.2526,
+  "architecture_report": {
+    "agent": "architecture",
+    "file": "agents/style_agent.py",
+    "model": null,
+    "layer": null,
+    "syntax_valid": true,
+    "summary": "No architecture problems were identified.",
+    "health_score": 100,
+    "total_findings": 0,
+    "findings_by_severity": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "findings_by_category": {
+      "layering": 0,
+      "dependency": 0,
+      "coupling": 0,
+      "duplication": 0,
+      "responsibility": 0,
+      "design": 0
+    },
+    "findings": [],
+    "discarded_findings": 0,
+    "changed_lines_only": false,
+    "duration_seconds": 0.25
+  },
+  "all_findings": [
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D100",
+      "message": "Missing docstring in public module",
+      "line": 1,
+      "column": 1,
+      "severity": "MEDIUM",
+      "id": "24c7c6d2412098386af48fd5b78206f5cb4d670db6d79de1e8020848fea8b285",
+      "reported_by": [
+        "style_agent"
+      ],
+      "category": "style",
+      "subcategory": null,
+      "confidence": null,
+      "confidence_scale": null,
+      "priority_score": 53.0
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D101",
+      "message": "Missing docstring in public class",
+      "line": 10,
+      "column": 7,
+      "severity": "MEDIUM",
+      "id": "01c92d493cae8e37aef26b7a48d4465d44dc7f37ac6a8605e46646bf02c13db9",
+      "reported_by": [
+        "style_agent"
+      ],
+      "category": "style",
+      "subcategory": null,
+      "confidence": null,
+      "confidence_scale": null,
+      "priority_score": 53.0
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D107",
+      "message": "Missing docstring in `__init__`",
+      "line": 12,
+      "column": 9,
+      "severity": "MEDIUM",
+      "id": "d471d7260b5519c6a01251ec90b7bd0843d6d21bea7304d6069908d4de62aad1",
+      "reported_by": [
+        "style_agent"
+      ],
+      "category": "style",
+      "subcategory": null,
+      "confidence": null,
+      "confidence_scale": null,
+      "priority_score": 53.0
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D102",
+      "message": "Missing docstring in public method",
+      "line": 16,
+      "column": 9,
+      "severity": "MEDIUM",
+      "id": "67c30bc5d9d78b86bb8b6908805595ea99c8537cb0cd93b5bca4411f1bf44073",
+      "reported_by": [
+        "style_agent"
+      ],
+      "category": "style",
+      "subcategory": null,
+      "confidence": null,
+      "confidence_scale": null,
+      "priority_score": 53.0
+    },
+    {
+      "agent": "style",
+      "file": "C:\\Users\\Admin\\Desktop\\PROJECT\\code_guard\\CodeGuardAI\\agents\\style_agent.py",
+      "code": "D103",
+      "message": "Missing docstring in public function",
+      "line": 73,
+      "column": 5,
+      "severity": "MEDIUM",
+      "id": "350afaf74f1f2427e1929f4fbb8ca84a32eaab44c29dd7c430dd69deaec39284",
+      "reported_by": [
+        "style_agent"
+      ],
+      "category": "style",
+      "subcategory": null,
+      "confidence": null,
+      "confidence_scale": null,
+      "priority_score": 53.0
+    }
+  ],
+  "errors": {},
+  "summary": {
+    "total_findings": 5,
+    "findings_by_severity": {
+      "MEDIUM": 5
+    },
+    "successful_agents": 4,
+    "failed_agents": 0,
+    "warnings": []
+  },
+  "style_report": {
+    "duration_seconds": 0.2526
+  }
+}
